@@ -394,7 +394,11 @@ main (int argc, char **argv)
 #endif
 
   if (debug)
+  {
+    printf ("\x1b[32m");
     debug_print_program (the_program);
+    printf ("\x1b[0m");
+  }
 
   return_code = process_files (the_program, argv+optind);
 

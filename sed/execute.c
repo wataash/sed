@@ -1018,6 +1018,7 @@ do_subst (struct subst *sub)
 
   if (debug)
     {
+      printf ("\x1b[34m");
       if (regs.num_regs>0 && regs.start[0] != -1)
         puts ("MATCHED REGEX REGISTERS");
 
@@ -1035,6 +1036,7 @@ do_subst (struct subst *sub)
 
           puts ("'");
         }
+      printf ("\x1b[0m");
     }
 
   if (!sub->replacement && sub->numb <= 1)
@@ -1243,22 +1245,27 @@ translate_mb (char *const *trans)
 static void
 debug_print_end_of_cycle (void)
 {
+  printf("\x1b[34m");
   puts ("END-OF-CYCLE:");
+  printf("\x1b[0m");
 }
 
 static void
 debug_print_input (const struct input *input)
 {
+  printf("\x1b[34m");
   bool is_stdin = (input->fp && fileno (input->fp) == 0);
 
   printf ("INPUT:   '%s' line %lu\n",
           is_stdin?"STDIN":input->in_file_name,
           input->line_number);
+  printf("\x1b[0m");
 }
 
 static void
 debug_print_line (struct line *ln)
 {
+  printf("\x1b[34m");
   const char *src = ln->active ? ln->active : ln->text;
   size_t l = ln->length;
   const char *p = src;
@@ -1267,6 +1274,7 @@ debug_print_line (struct line *ln)
   while (l--)
     debug_print_char (*p++);
   putchar ('\n');
+  printf("\x1b[0m");
 }
 
 /* Execute the program `vec' on the current input line.
@@ -1283,8 +1291,10 @@ execute_program (struct vector *vec, struct input *input)
     {
       if (debug)
         {
+          printf ("\x1b[34m");
           fputs ("COMMAND: ", stdout);
           debug_print_command (vec, cur_cmd);
+          printf ("\x1b[0m");
         }
 
       if (match_address_p (cur_cmd, input) != cur_cmd->addr_bang)
@@ -1320,7 +1330,11 @@ execute_program (struct vector *vec, struct input *input)
               FALLTHROUGH;
             case 'd':
               if (debug)
+              {
+                printf ("\x1b[34m");
                 debug_print_end_of_cycle ();
+                printf ("\x1b[0m");
+              }
               return -1;
 
             case 'D':
@@ -1338,7 +1352,11 @@ execute_program (struct vector *vec, struct input *input)
                 cur_cmd = vec->v;
 
                 if (debug)
+                {
+                  printf ("\x1b[34m");
                   debug_print_line (&line);
+                  printf ("\x1b[0m");
+                }
                 continue;
               }
 
@@ -1409,7 +1427,11 @@ execute_program (struct vector *vec, struct input *input)
                  We keep it true because it's what sed <= 4.1.5 did.  */
               line_copy (&hold, &line, true);
               if (debug)
+              {
+                printf ("\x1b[34m");
                 debug_print_line (&hold);
+                printf ("\x1b[0m");
+              }
               break;
 
             case 'G':
@@ -1420,14 +1442,22 @@ execute_program (struct vector *vec, struct input *input)
                  we could consider having line_ap.  */
               line_append (&hold, &line, true);
               if (debug)
+              {
+                printf ("\x1b[34m");
                 debug_print_line (&line);
+                printf ("\x1b[0m");
+              }
               break;
 
             case 'h':
               /* Here, it is ok to have true.  */
               line_copy (&line, &hold, true);
               if (debug)
+              {
+                printf ("\x1b[34m");
                 debug_print_line (&hold);
+                printf ("\x1b[0m");
+              }
               break;
 
             case 'H':
@@ -1456,12 +1486,20 @@ execute_program (struct vector *vec, struct input *input)
               if (test_eof (input) || !read_pattern_space (input, vec, false))
                 {
                   if (debug)
+                  {
+                    printf("\x1b[34m");
                     debug_print_end_of_cycle ();
+                    printf("\x1b[0m");
+                  }
                   return -1;
                 }
 
               if (debug)
+              {
+                printf("\x1b[34m");
                 debug_print_line (&line);
+                printf("\x1b[0m");
+              }
               break;
 
             case 'N':
@@ -1470,7 +1508,11 @@ execute_program (struct vector *vec, struct input *input)
               if (test_eof (input) || !read_pattern_space (input, vec, true))
                 {
                   if (debug)
+                  {
+                    printf("\x1b[34m");
                     debug_print_end_of_cycle ();
+                    printf("\x1b[0m");
+                  }
                   line.length--;
                   if (posixicity == POSIXLY_EXTENDED && !no_default_output)
                      output_line (line.active, line.length, line.chomped,
@@ -1478,7 +1520,11 @@ execute_program (struct vector *vec, struct input *input)
                   return -1;
                 }
               if (debug)
+              {
+                printf("\x1b[34m");
                 debug_print_line (&line);
+                printf("\x1b[0m");
+              }
               break;
 
             case 'p':
@@ -1542,7 +1588,11 @@ execute_program (struct vector *vec, struct input *input)
             case 's':
               do_subst (cur_cmd->x.cmd_subst);
               if (debug)
+              {
+                printf("\x1b[34m");
                 debug_print_line (&line);
+                printf("\x1b[0m");
+              }
               break;
 
             case 't':
@@ -1584,8 +1634,10 @@ execute_program (struct vector *vec, struct input *input)
               line_exchange (&line, &hold, false);
               if (debug)
                 {
+                  printf("\x1b[34m");
                   debug_print_line (&line);
                   debug_print_line (&hold);
+                  printf("\x1b[0m");
                 }
               break;
 
@@ -1600,13 +1652,21 @@ execute_program (struct vector *vec, struct input *input)
                     *p = cur_cmd->x.translate[*p];
                 }
               if (debug)
+              {
+                printf("\x1b[34m");
                 debug_print_line (&line);
+                printf("\x1b[0m");
+              }
               break;
 
             case 'z':
               line.length = 0;
               if (debug)
+              {
+                printf("\x1b[34m");
                 debug_print_line (&line);
+                printf("\x1b[0m");
+              }
               break;
 
             case '=':
@@ -1635,7 +1695,11 @@ execute_program (struct vector *vec, struct input *input)
     }
 
     if (debug)
+    {
+      printf ("\x1b[34m");
       debug_print_end_of_cycle ();
+      printf ("\x1b[0m");
+    }
     if (!no_default_output)
       output_line (line.active, line.length, line.chomped, &output_file);
     return -1;
@@ -1673,8 +1737,10 @@ process_files (struct vector *the_program, char **argv)
     {
       if (debug)
         {
+          printf ("\x1b[34m");
           debug_print_input (&input);
           debug_print_line (&line);
+          printf ("\x1b[0m");
         }
 
       status = execute_program (the_program, &input);
