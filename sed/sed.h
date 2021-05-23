@@ -54,6 +54,7 @@ struct regex {
   struct dfa *dfa;
   bool begline;
   bool endline;
+  // actually char * ?
   char re[1];
 };
 

@@ -209,6 +209,9 @@ specified, then the standard input is read.\n\
 int
 main (int argc, char **argv)
 {
+  setbuf(stdout, NULL);
+  setbuf(stderr, NULL);
+
 #define SHORTOPTS "bsnrzuEe:f:l:i::V:"
 
   enum { SANDBOX_OPTION = CHAR_MAX+1,
